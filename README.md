@@ -19,9 +19,9 @@ add `ZfSimpleMigrations` to the `modules` array in application.config.php
 * `migration version` - show last applied migration
 * `migration list [--all]` - list available migrations (`all` includes applied migrations)
 * `migration apply [<version>] [--force] [--down] [--fake]` - apply or rollback migration
-* `migration generate` - generate migration skeleton class
+* `migration generate [--module]` - generate migration skeleton class
 
-Migration classes are stored in `/path/to/project/migrations/` dir by default.
+Migration classes are stored in `/path/to/project/migrations/` dir by default. By setting use_modules to true in the config, migrations are stored in `/module/<moduleName>/Migration`.
 
 Generic migration class has name `Version<YmdHis>` and implement `ZfSimpleMigrations\Library\MigrationInterface`.
 
