@@ -9,16 +9,23 @@ class MigrationSkeletonGenerator
 {
     protected $migrationsDir;
     protected $migrationNamespace;
+    protected $useModules;
 
     /**
      * @param string $migrationsDir migrations working directory
      * @param string $migrationsNamespace migrations namespace
      * @throws MigrationException
      */
-    public function __construct($migrationsDir, $migrationsNamespace)
+    public function __construct($migrationsDir, $migrationsNamespace, $useModules = false, $moduleName = null)
     {
         $this->migrationsDir = $migrationsDir;
         $this->migrationNamespace = $migrationsNamespace;
+        $this->useModules = $useModules;
+
+        if ($this->useModules && !empty($moduleName)) {
+            $this->migrationsDir = dirname(__FILE__) . '/../../../../../../module/' . $moduleName . '/src/Migration';
+            $this->migrationNamespace = $moduleName . '\Migration';
+        }
 
         if (!is_dir($this->migrationsDir)) {
             if (!mkdir($this->migrationsDir, 0775)) {

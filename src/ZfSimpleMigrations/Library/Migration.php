@@ -29,6 +29,7 @@ class Migration implements ServiceLocatorAwareInterface
     protected $metadata;
     protected $migrationVersionTable;
     protected $outputWriter;
+    protected $useModules;
 
     /**
      * @var ServiceLocatorInterface
@@ -48,11 +49,12 @@ class Migration implements ServiceLocatorAwareInterface
         $this->metadata = new Metadata($this->adapter);
         $this->connection = $this->adapter->getDriver()->getConnection();
         $this->migrationsDir = $config['dir'];
+        $this->useModules = $config['use_modules'];
         $this->migrationsNamespace = $config['namespace'];
         $this->migrationVersionTable = $migrationVersionTable;
         $this->outputWriter = is_null($writer) ? new OutputWriter() : $writer;
 
-        if (is_null($this->migrationsDir))
+        if (is_null($this->migrationsDir) && !$this->useModules)
             throw new MigrationException('Migrations directory not set!');
 
         if (is_null($this->migrationsNamespace))
@@ -198,15 +200,11 @@ class Migration implements ServiceLocatorAwareInterface
         return count($versions) > 0 ? $versions[0] : 0;
     }
 
-    /**
-     * @param bool $all
-     * @return \ArrayIterator
-     */
-    public function getMigrationClasses($all = false)
+    protected function getMigrationClassesFromDirectory($dir, $all = false)
     {
         $classes = new \ArrayIterator();
 
-        $iterator = new \GlobIterator(sprintf('%s/Version*.php', $this->migrationsDir), \FilesystemIterator::KEY_AS_FILENAME);
+        $iterator = new \GlobIterator(sprintf('%s/Version*.php', $dir), \FilesystemIterator::KEY_AS_FILENAME);
         foreach ($iterator as $item) {
             /** @var $item \SplFileInfo */
             if (preg_match('/(Version(\d+))\.php/', $item->getFilename(), $matches)) {
@@ -233,6 +231,29 @@ class Migration implements ServiceLocatorAwareInterface
                     }
                 }
             }
+        }
+
+        return $classes;
+    }
+
+    /**
+     * @param bool $all
+     * @return \ArrayIterator
+     */
+    public function getMigrationClasses($all = false)
+    {
+        if ($this->useModules) {
+            $directories = new \DirectoryIterator(dirname(__FILE__) . '/../../../../../../module');
+            $classes =  array();
+
+            foreach ($directories as $dir) {
+                if (!$dir->isDot() && substr($dir->getFileName(),0,1) !== '.') {
+                    $classes = array_merge($classes, $this->getMigrationClassesFromDirectory($dir->getFileName() . '/src/Migration', $all)->getArrayCopy());
+                }
+            }
+            $classes = new \ArrayIterator($classes);
+        } else {
+            $classes = $this->getMigrationClassesFromDirectory($this->migrationsDir, $all);
         }
 
         $classes->uasort(function ($a, $b) {

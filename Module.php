@@ -80,8 +80,11 @@ class Module implements
             array('--all', 'Include applied migrations'),
 
             'Generate new migration skeleton class',
-            'migration generate' => '',
-
+            'migration generate [--module]' => '',
+            array(
+                '--module',
+                'Select module to create migration for. Required if use_modules configuration is set to true.'
+            ),
             'Execute migration',
             'migration apply [<version>] [--force] [--down] [--fake]' => '',
             array(

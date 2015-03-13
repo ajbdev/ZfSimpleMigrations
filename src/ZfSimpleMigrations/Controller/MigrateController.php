@@ -97,7 +97,13 @@ class MigrateController extends AbstractActionController
     {
         $config = $this->getServiceLocator()->get('Config');
 
-        $generator = new MigrationSkeletonGenerator($config['migrations']['dir'], $config['migrations']['namespace']);
+        $module = $this->getRequest()->getParam('module');
+
+        if ($config['migrations']['use_modules'] && empty($module)) {
+            return "You must set the module name to create the migration for.\n";
+        }
+
+        $generator = new MigrationSkeletonGenerator($config['migrations']['dir'], $config['migrations']['namespace'],$config['migrations']['use_modules'],$module);
         $classPath = $generator->generate();
 
         return sprintf("Generated skeleton class @ %s\n", realpath($classPath));

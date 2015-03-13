@@ -4,7 +4,8 @@ return array(
     'migrations' => array(
         'dir' => dirname(__FILE__) . '/../../../../migrations',
         'namespace' => 'ZfSimpleMigrations\Migrations',
-        'show_log' => true
+        'show_log' => true,
+        'use_modules'   =>  false,
     ),
     'console' => array(
         'router' => array(
@@ -42,7 +43,7 @@ return array(
                 'migration-generate' => array(
                     'type' => 'simple',
                     'options' => array(
-                        'route' => 'migration generate [--env=]',
+                        'route' => 'migration generate [--env=] [--module=]',
                         'defaults' => array(
                             'controller' => 'ZfSimpleMigrations\Controller\Migrate',
                             'action' => 'generateSkeleton'
