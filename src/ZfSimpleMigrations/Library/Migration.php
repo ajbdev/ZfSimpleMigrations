@@ -200,21 +200,29 @@ class Migration implements ServiceLocatorAwareInterface
         return count($versions) > 0 ? $versions[0] : 0;
     }
 
-    protected function getMigrationClassesFromDirectory($dir, $all = false)
+    protected function getMigrationClassesFromDirectory($dir, $all = false, $namespace)
     {
         $classes = new \ArrayIterator();
 
         $iterator = new \GlobIterator(sprintf('%s/Version*.php', $dir), \FilesystemIterator::KEY_AS_FILENAME);
         foreach ($iterator as $item) {
             /** @var $item \SplFileInfo */
-            if (preg_match('/(Version(\d+))\.php/', $item->getFilename(), $matches)) {
+            if (preg_match('/(Version(.*))\.php/', $item->getFilename(), $matches)) {
+
                 $applied = $this->migrationVersionTable->applied($matches[2]);
                 if ($all || !$applied) {
-                    $className = $this->migrationsNamespace . '\\' . $matches[1];
+                    $className = $matches[1];
+                    if ($this->useModules) {
+                        $className = $namespace . '\\' . $className;
+                    } else {
+                        $className = $this->migrationsNamespace . '\\' . $className;
+                    }
 
-                    if (!class_exists($className))
+                    if (!class_exists($className)) {
                         /** @noinspection PhpIncludeInspection */
-                        require_once $this->migrationsDir . '/' . $item->getFilename();
+                        require_once $dir . '/' . $item->getFilename();
+                        echo $className . PHP_EOL;
+                    }
 
                     if (class_exists($className)) {
                         $reflectionClass = new \ReflectionClass($className);
@@ -248,7 +256,8 @@ class Migration implements ServiceLocatorAwareInterface
 
             foreach ($directories as $dir) {
                 if (!$dir->isDot() && substr($dir->getFileName(),0,1) !== '.') {
-                    $classes = array_merge($classes, $this->getMigrationClassesFromDirectory($dir->getFileName() . '/src/Migration', $all)->getArrayCopy());
+                    $path = dirname(__FILE__) . '/../../../../../../module/' . $dir->getFileName() . '/src/Migration';
+                    $classes = array_merge($classes, $this->getMigrationClassesFromDirectory($path, $all, $dir->getFileName() . '\\Migration')->getArrayCopy());
                 }
             }
             $classes = new \ArrayIterator($classes);
