@@ -10,17 +10,19 @@ class MigrationSkeletonGenerator
     protected $migrationsDir;
     protected $migrationNamespace;
     protected $useModules;
+    protected $name;
 
     /**
      * @param string $migrationsDir migrations working directory
      * @param string $migrationsNamespace migrations namespace
      * @throws MigrationException
      */
-    public function __construct($migrationsDir, $migrationsNamespace, $useModules = false, $moduleName = null)
+    public function __construct($migrationsDir, $migrationsNamespace, $name = '', $useModules = false, $moduleName = null)
     {
         $this->migrationsDir = $migrationsDir;
         $this->migrationNamespace = $migrationsNamespace;
         $this->useModules = $useModules;
+        $this->name = empty($name) ? '' : $name;
 
         if ($this->useModules && !empty($moduleName)) {
             $this->migrationsDir = dirname(__FILE__) . '/../../../../../../module/' . $moduleName . '/src/Migration';
@@ -44,7 +46,12 @@ class MigrationSkeletonGenerator
      */
     public function generate()
     {
-        $className = 'Version' . date('YmdHis', time());
+        $name = '';
+        if (!empty($this->name)) {
+            $name = str_replace(' ', '', ucwords(str_replace('_', ' ', $this->name)));
+        }
+
+        $className = 'Version' . date('YmdHis', time()) . $name;
         $classPath = $this->migrationsDir . DIRECTORY_SEPARATOR . $className . '.php';
 
         if (file_exists($classPath)) {

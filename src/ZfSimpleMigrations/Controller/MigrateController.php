@@ -77,10 +77,10 @@ class MigrateController extends AbstractActionController
         $fake = $this->getRequest()->getParam('fake');
 
         if (is_null($version) && $force) {
-            return "Can't force migration apply without migration version explicitly set.";
+            return "Can't force migration apply without migration version explicitly set.\n";
         }
         if (is_null($version) && $fake) {
-            return "Can't fake migration apply without migration version explicitly set.";
+            return "Can't fake migration apply without migration version explicitly set.\n";
         }
         if (!$force && is_null($version) && $currentMigrationVersion >= $this->getMigration()->getMaxMigrationVersion($migrations)) {
             return "No migrations to apply.\n";
@@ -99,11 +99,13 @@ class MigrateController extends AbstractActionController
 
         $module = $this->getRequest()->getParam('module');
 
+        $name = $this->getRequest()->getParam('name');
+
         if ($config['migrations']['use_modules'] && empty($module)) {
             return "You must set the module name to create the migration for.\n";
         }
 
-        $generator = new MigrationSkeletonGenerator($config['migrations']['dir'], $config['migrations']['namespace'],$config['migrations']['use_modules'],$module);
+        $generator = new MigrationSkeletonGenerator($config['migrations']['dir'], $config['migrations']['namespace'],$name,$config['migrations']['use_modules'],$module);
         $classPath = $generator->generate();
 
         return sprintf("Generated skeleton class @ %s\n", realpath($classPath));

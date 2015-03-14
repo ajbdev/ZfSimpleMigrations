@@ -43,7 +43,7 @@ return array(
                 'migration-generate' => array(
                     'type' => 'simple',
                     'options' => array(
-                        'route' => 'migration generate [--env=] [--module=]',
+                        'route' => 'migration generate [<name>] [--env=] [--module=]',
                         'defaults' => array(
                             'controller' => 'ZfSimpleMigrations\Controller\Migrate',
                             'action' => 'generateSkeleton'
