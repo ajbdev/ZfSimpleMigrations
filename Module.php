@@ -82,9 +82,12 @@ class Module implements
             'Generate new migration skeleton class',
             'migration generate [<name>] [--module=]' => '',
             array(
-                '--module',
-                'Select module to create migration for. Required if use_modules configuration is set to true.',
+                'name',
                 'Set <name> to optionally add a name to the migration. Should be CamelCased or snake_cased.'
+            ),
+            array(
+                '--module',
+                'Select module to create migration for. Required if use_modules configuration is set to true.'
             ),
             'Execute migration',
             'migration apply [<version>] [--force] [--down] [--fake]' => '',
