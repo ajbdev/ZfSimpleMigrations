@@ -84,7 +84,7 @@ class Module implements
             array(
                 '--module',
                 'Select module to create migration for. Required if use_modules configuration is set to true.',
-                'Set <name> to optionally add a name to the migration. '
+                'Set <name> to optionally add a name to the migration. Should be CamelCased or snake_cased.'
             ),
             'Execute migration',
             'migration apply [<version>] [--force] [--down] [--fake]' => '',
